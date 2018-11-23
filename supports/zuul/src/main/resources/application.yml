@@ -1,0 +1,26 @@
+spring:
+  profiles:
+    active: dev
+  application:
+    name: zuul
+
+info:
+  app:
+    name: "@project.name@"
+    profile: ${spring.profiles.active}
+    version: "@project.version@"
+    description: "@project.description@"
+
+zuul:
+  routes:
+    ignored-services: "*"
+    uaa:
+      sensitiveHeaders:
+      path: /uaa/**
+      serviceId: uaa
+      stripPrefix: true
+    shopcart:
+      path: /cart/**
+      serviceId: cart-service
+      stripPrefix: true
+  add-proxy-headers: true

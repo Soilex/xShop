@@ -1,0 +1,12 @@
+spring:
+  profiles:
+    active: dev
+
+  application:
+    name: eureka
+
+info:
+  name: "@project.name@"
+  profile: ${spring.profiles.active}
+  version: "@project.version@"
+  description: "@project.description@"

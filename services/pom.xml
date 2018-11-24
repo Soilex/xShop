@@ -15,6 +15,8 @@
     <modules>
         <module>uaa</module>
         <module>captcha</module>
+        <module>service-uaa</module>
+        <module>service-captcha</module>
     </modules>
 
 </project>

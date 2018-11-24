@@ -23,7 +23,7 @@
         <dependency>
             <groupId>com.github.soilex.xshop</groupId>
             <artifactId>xshop-starter-web</artifactId>
-            <version>1.0.0-SNAPSHOT</version>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
 

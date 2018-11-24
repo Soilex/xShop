@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: uaa-service
+  exception:
+    module: ${spring.application.name}
+    log-level: unchecked
+  profiles:
+    active: dev
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+
+snowflake:
+  worker-id: 0 #5位工作机器id，取值范围为0-31。部署多个服务实例时请确保为每个实例分配不同的数值
+  datacenter-id: 0 #5位数据中心id，取值范围为0-31。部署多个数据中心时请确保为每个数据中心分配不同的数值
+
+info:
+  name: "@project.name@"
+  profile: ${spring.profiles.active}
+  version: "@project.version@"
+  description: "@project.description@"
+  terms: soilex.github.com
+  developer: soilex
+  email: 15919553@qq.com

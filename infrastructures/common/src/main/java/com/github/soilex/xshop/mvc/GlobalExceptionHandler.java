@@ -3,12 +3,16 @@ package com.github.soilex.xshop.mvc;
 import com.github.soilex.xshop.exceptions.AppException;
 import com.github.soilex.xshop.exceptions.ExceptionLevel;
 import com.github.soilex.xshop.exceptions.system.ServerException;
+import com.github.soilex.xshop.exceptions.unchecked.BadRequestException;
 import com.netflix.hystrix.exception.HystrixRuntimeException;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -24,6 +28,9 @@ public class GlobalExceptionHandler {
             }
         } else if (e instanceof AppException) {
             cause = e;
+        } else if (e instanceof MethodArgumentNotValidException) {
+            String message = ((MethodArgumentNotValidException) e).getBindingResult().getFieldError().getDefaultMessage();
+            cause = new BadRequestException(message);
         } else {
             cause = new ServerException(e);
         }

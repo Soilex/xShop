@@ -1,0 +1,64 @@
+spring:
+  security:
+    jwt:
+      domain: soilex.github.com
+      issuer: soilex
+      secret: c29pbGV4LmdpdGh1Yi5jb20=
+  data:
+    mongodb:
+      uri: mongodb://root:root123456@cluster0-shard-00-00-da1yk.azure.mongodb.net:27017,cluster0-shard-00-01-da1yk.azure.mongodb.net:27017,cluster0-shard-00-02-da1yk.azure.mongodb.net:27017/xshop-uaa?ssl=true&replicaSet=Cluster0-shard-0&authSource=admin&retryWrites=true
+      
+
+server:
+  port: 8002
+  undertow:
+    buffer-size: 1024
+    io-threads: 8
+    worker-threads: 256
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://127.0.0.1:8761/eureka/
+
+logging:
+  pattern:
+    level: "[%5p]"
+    dateformat: "[yyyy-MM-dd HH:mm:ss.SSS]"
+  level:
+    root: DEBUG
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+captcha-service:
+  ribbon:
+    ConnectTimeout: 2000 #连接超时时间
+    ReadTimeout: 5000 #读取超时时间
+    OkToRetryOnAllOperations: false #所有操作请求都进行重试
+    MaxAutoRetries: 1 #当前实例的重试次数
+    MaxAutoRetriesNextServer: 4 #服务切换实例的重试次数
+
+feign:
+  hystrix:
+    enabled: true
+  compression:
+    request:
+      enabled: true
+  okhttp:
+    enabled: true
+  httpclient:
+    enabled: false
+
+hystrix:
+  command:
+    default:
+      execution:
+        isolation:
+          thread:
+            timeout-in-milliseconds: 10000 #熔断超时时间
+        timeout:
+          enabled: true

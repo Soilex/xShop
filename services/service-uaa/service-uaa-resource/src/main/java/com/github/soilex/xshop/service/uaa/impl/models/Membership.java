@@ -21,20 +21,14 @@ import java.time.LocalDateTime;
 @EqualsAndHashCode(of = { "uid" })
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(collection = "uaa_memberships")
-@CompoundIndexes({
-        @CompoundIndex(def = "{'isLockedOut': -1, 'lastLockoutDate': -1}")
-})
+//@Document(collection = "uaa_memberships")
+//@CompoundIndexes({
+//        @CompoundIndex(def = "{'isLockedOut': -1, 'lastLockoutDate': -1}")
+//})
 public class Membership {
 
     @Transient
     private AccountSecurityConfig accountSecurityConfig = SpringContextHolder.getBean(AccountSecurityConfig.class);
-
-    /**
-     * 用户Id
-     */
-    @Id
-    private long uid;
 
     /**
      * 密码
@@ -111,15 +105,14 @@ public class Membership {
 
     /**
      * 成员资格
-     * @param user 用户
+     * @param mobile 手机号码
      * @param password 密码
      */
-    public Membership(User user, String password) {
+    public Membership(String mobile, String password) {
         LocalDateTime now = LocalDateTime.now();
-        setUid(user.getUid());
+
         setPassword(password);
-        setMobile(user.getMobile());
-        setEmail(user.getEmail());
+        setMobile(mobile);
         setCreateDate(now);
         setLastLoginDate(now);
     }

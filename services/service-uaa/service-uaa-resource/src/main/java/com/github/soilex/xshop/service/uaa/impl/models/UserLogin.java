@@ -15,10 +15,10 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode(of = { "id" })
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@Document(collection = "uaa_userlogins")
-@CompoundIndexes({
-        @CompoundIndex(def = "{'provider': 1, 'clientId': 1}")
-})
+//@Document(collection = "uaa_userlogins")
+//@CompoundIndexes({
+//        @CompoundIndex(def = "{'provider': 1, 'clientId': 1}")
+//})
 public class UserLogin {
     /**
      * 唯一标志

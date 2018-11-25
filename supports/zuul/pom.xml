@@ -20,11 +20,6 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
         </dependency>
-        <dependency>
-            <groupId>com.github.soilex.xshop</groupId>
-            <artifactId>xshop-starter-web</artifactId>
-            <version>${project.version}</version>
-        </dependency>
     </dependencies>
 
 </project>

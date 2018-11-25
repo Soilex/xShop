@@ -8,8 +8,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
 
 @Data
-@ApiModel("使用手机号注册")
-public class SignupWithMobileRequest {
+@ApiModel("注册账户")
+public class SignupRequest {
     @ApiParam(name = "mobile", value = "手机号码", required = true)
     @NotBlank(message = "手机号码是必须的")
     @Pattern(regexp = "^1[0-9]{10}$", message = "手机号格式错误")

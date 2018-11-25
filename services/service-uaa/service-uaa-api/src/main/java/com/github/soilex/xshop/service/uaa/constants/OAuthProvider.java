@@ -7,12 +7,9 @@ public enum OAuthProvider {
     @EnumField(text = "手机号", value = 1)
     Mobile,
 
-    @EnumField(text = "电子邮件", value = 2)
-    Email,
-
-    @EnumField(text = "QQ", value = 3)
+    @EnumField(text = "QQ", value = 2)
     QQ,
 
-    @EnumField(text = "微信", value = 4)
+    @EnumField(text = "微信", value = 3)
     Wechat
 }

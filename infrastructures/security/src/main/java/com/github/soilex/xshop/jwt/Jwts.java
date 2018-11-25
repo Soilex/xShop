@@ -17,8 +17,8 @@ public class Jwts {
 
     private static final String CLAIM_AUTHORITY = "aut";
 
-    public static Token generateToken(long userId, String... roles) {
-        String subject = String.valueOf(userId);
+    public static Token generateToken(String userId, String... roles) {
+        String subject = userId;
         String authority = Arrays.stream(roles).collect(Collectors.joining(",", "ROLE_", "")).toUpperCase();
         LocalDateTime expirationDate = LocalDateTime.now().plusDays(1);
         Date expiration = Date.from(expirationDate.atZone(ZoneId.systemDefault()).toInstant());

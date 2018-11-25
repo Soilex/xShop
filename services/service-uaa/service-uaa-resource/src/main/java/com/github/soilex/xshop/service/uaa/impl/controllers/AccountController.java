@@ -1,7 +1,6 @@
 package com.github.soilex.xshop.service.uaa.impl.controllers;
 
 import com.github.soilex.xshop.AccountSecurityConfig;
-import com.github.soilex.xshop.constants.Gender;
 import com.github.soilex.xshop.jwt.Jwts;
 import com.github.soilex.xshop.jwt.Token;
 import com.github.soilex.xshop.mvc.JsonResult;
@@ -14,13 +13,10 @@ import com.github.soilex.xshop.service.uaa.exceptions.DuplicateAccountException;
 import com.github.soilex.xshop.service.uaa.exceptions.WeakPasswordException;
 import com.github.soilex.xshop.service.uaa.impl.models.Membership;
 import com.github.soilex.xshop.service.uaa.impl.models.User;
-import com.github.soilex.xshop.service.uaa.impl.models.UserLogin;
-import com.github.soilex.xshop.service.uaa.impl.repositories.MembershipRepository;
-import com.github.soilex.xshop.service.uaa.impl.repositories.UserLoginRepository;
 import com.github.soilex.xshop.service.uaa.impl.repositories.UserRepository;
 import com.github.soilex.xshop.service.uaa.models.GetTokenRequest;
 import com.github.soilex.xshop.service.uaa.models.JWTToken;
-import com.github.soilex.xshop.service.uaa.models.SignupWithMobileRequest;
+import com.github.soilex.xshop.service.uaa.models.SignupRequest;
 import com.github.soilex.xshop.service.uaa.services.AccountService;
 import com.github.soilex.xshop.utils.Enums;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
+import java.math.BigInteger;
 import java.time.Duration;
 import java.time.LocalDateTime;
 
@@ -43,13 +40,7 @@ public class AccountController implements AccountService {
     private PasswordEncoder passwordEncoder;
 
     @Autowired
-    private MembershipRepository membershipRepository;
-
-    @Autowired
     private UserRepository userRepository;
-
-    @Autowired
-    private UserLoginRepository userLoginRepository;
 
     @Autowired
     private HttpServletRequest request;
@@ -71,14 +62,13 @@ public class AccountController implements AccountService {
             ));
         }
 
-        Long uid;
-        if (data.getProvider() == OAuthProvider.Email || data.getProvider() == OAuthProvider.Mobile) {
-            Membership membership = data.getProvider() == OAuthProvider.Email ?
-                    membershipRepository.findFirstByEmail(data.getLoginName()) :
-                    membershipRepository.findFirstByMobile(data.getLoginName());
-            if (membership == null) {
+        User user;
+        if (data.getProvider() == OAuthProvider.Mobile) {
+            user = userRepository.findByMobile(data.getLoginName());
+            if (user == null) {
                 throw new AuthenticationException("用户名或密码错误");
             } else {
+                Membership membership = user.getMembership();
                 LocalDateTime now = LocalDateTime.now();
                 LocalDateTime unlockDate = membership.getLastLockoutDate() == null ? now : membership.getLastLockoutDate().plusMinutes(securityConfig.getLockOut());
                 if (unlockDate.isAfter(now)) {
@@ -87,22 +77,18 @@ public class AccountController implements AccountService {
                 } else if (!passwordEncoder.matches(data.getPassword(), membership.getPassword())) {
                     // 增加用户的登录错误次数
                     membership.failedPassword();
-                    membershipRepository.save(membership);
+                    userRepository.update(user);
 
                     throw new AuthenticationException("用户名或密码错误");
                 }
             }
-            uid = membership.getUid();
         } else {
-            UserLogin userLogin = userLoginRepository.findFirstByClientIdAndProvider(data.getLoginName(), data.getProvider());
-            if (userLogin == null) {
+            user = userRepository.findByUserLogin(data.getLoginName(), data.getProvider());
+            if (user == null) {
                 throw new AuthenticationException(Enums.getEnumText(data.getProvider()) + "认证失败");
             }
-            uid = userLogin.getUid();
         }
-
-        User user = userRepository.findById(uid).get();
-        Token token = Jwts.generateToken(user.getUid(), user.getRole().name());
+        Token token = Jwts.generateToken(user.getUid().toString(), user.getRole().name());
         return JsonResult.ok(new JWTToken(token.getData(), token.getAudience(), token.getIssuer(), token.getExpiration()));
     }
 
@@ -111,30 +97,26 @@ public class AccountController implements AccountService {
     @PreAuthorize("isAuthenticated()")
     public JsonResult<JWTToken> refreshToken() {
         Token jwt = (Token) request.getUserPrincipal();
-        User user = userRepository.findById(Long.valueOf(jwt.getSubject())).get();
-        Token token = Jwts.generateToken(user.getUid(), user.getRole().name());
+        User user = userRepository.findByUid(new BigInteger(jwt.getSubject()));
+        Token token = Jwts.generateToken(user.getUid().toString(), user.getRole().name());
         return JsonResult.ok(new JWTToken(token.getData(), token.getAudience(), token.getIssuer(), token.getExpiration()));
     }
 
     @Override
     @Transactional
-    public JsonResult<JWTToken> signupWithMobile(@RequestBody @Valid SignupWithMobileRequest data) {
-
+    public JsonResult<JWTToken> signup(@RequestBody @Valid SignupRequest data) {
         // 校验验证码
         captchaService.validateSMS(data.getMobile(), data.getCode());
 
         User user;
         try {
-            user = new User(data.getMobile(), "", "", Gender.Secret, "", Role.User);
+            user = new User(data.getMobile(), Role.User, data.getPassword());
             userRepository.save(user);
-
-            Membership membership = new Membership(user, passwordEncoder.encode(data.getPassword()));
-            membershipRepository.save(membership);
         } catch (DuplicateKeyException e) {
             throw new DuplicateAccountException("手机号" + data.getMobile() + "已注册");
         }
 
-        Token token = Jwts.generateToken(user.getUid(), user.getRole().name());
+        Token token = Jwts.generateToken(user.getUid().toString(), user.getRole().name());
         return JsonResult.ok(new JWTToken(token.getData(), token.getAudience(), token.getIssuer(), token.getExpiration()));
     }
 }

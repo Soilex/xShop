@@ -3,7 +3,7 @@ package com.github.soilex.xshop.service.uaa.services;
 import com.github.soilex.xshop.mvc.JsonResult;
 import com.github.soilex.xshop.service.uaa.models.GetTokenRequest;
 import com.github.soilex.xshop.service.uaa.models.JWTToken;
-import com.github.soilex.xshop.service.uaa.models.SignupWithMobileRequest;
+import com.github.soilex.xshop.service.uaa.models.SignupRequest;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.stereotype.Service;
@@ -26,7 +26,7 @@ public interface AccountService {
     @GetMapping("/account/refreshToken")
     JsonResult<JWTToken> refreshToken();
 
-    @ApiOperation(value = "使用手机号码注册账户")
+    @ApiOperation(value = "注册账户")
     @PostMapping("/account/signup/mobile")
-    JsonResult<JWTToken> signupWithMobile(@RequestBody SignupWithMobileRequest data);
+    JsonResult<JWTToken> signup(@RequestBody SignupRequest data);
 }
